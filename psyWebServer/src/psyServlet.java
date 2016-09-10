@@ -1,6 +1,7 @@
 
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.*;
 
 import javax.servlet.ServletException;
@@ -149,6 +150,8 @@ public class psyServlet extends HttpServlet {
     
     private void doPush(String APhoneNum, String AMessage)
     {
+    	System.out.println("doPush");
+    	
 		String JDBC_DRIVER="org.postgresql.Driver";  
 		String DB_URL="jdbc:postgresql://localhost/psyWebServer";
 		String USER = "postgres";
@@ -169,15 +172,36 @@ public class psyServlet extends HttpServlet {
 	        String sql;
 	        sql = String.format("select * from deviceinfo where phonenum = '%s'", APhoneNum);
 	        ResultSet rs = stmt.executeQuery(sql);
-	        
+
+
+	        System.out.println("doPush1");
+	           
 	        // Extract data from result set
 	        if (rs.next() == true)
 	        {
- 	   
+	           	System.out.println("about to push message");
 	           String regid = rs.getString("regid");
 	           String os = rs.getString("os");			
 	           
 	           // send push message
+	           PrintWriter writer = new PrintWriter("D:/pushdata.txt", "UTF-8");
+	           writer.println(regid);
+	           writer.println(AMessage);
+	           writer.close();
+	           
+	           Runtime rt = Runtime.getRuntime();
+	           Process p;
+	           String[] cmdAry = {"C:/Program Files/nodejs/node", "D:/android.js"};
+	           try
+	           {
+	        	   p = rt.exec(cmdAry);
+	        	   p.waitFor();
+	           }
+	           catch (Exception e)
+	           {
+	        	   e.printStackTrace();
+	        	   System.out.println("exception raised.... ");
+	           }
 	        }
 	        
 	        // Clean-up environment
