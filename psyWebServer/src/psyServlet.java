@@ -2,6 +2,8 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.*;
 
 import javax.servlet.ServletException;
@@ -11,6 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.*;
+
+// about gcm-sender
+import com.google.android.gcm.server.Message;
+import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Result;
+import com.google.android.gcm.server.Sender;
 
 
 /**
@@ -173,35 +181,76 @@ public class psyServlet extends HttpServlet {
 	        sql = String.format("select * from deviceinfo where phonenum = '%s'", APhoneNum);
 	        ResultSet rs = stmt.executeQuery(sql);
 
-
 	        System.out.println("doPush1");
 	           
 	        // Extract data from result set
 	        if (rs.next() == true)
 	        {
-	           	System.out.println("about to push message");
-	           String regid = rs.getString("regid");
-	           String os = rs.getString("os");			
+	        	System.out.println("about to push message");
+	            String regid = rs.getString("regid");
+	            String os = rs.getString("os");			
 	           
+	            // send push message
+	            Sender sender = new Sender("AIzaSyCLyKTKpOmGheXwUT9ba-JdGU74GqzVpG4"); 
+	
+				Message message = new Message.Builder().addData(AMessage, "Popup & GCM Test")
+						.build();
+				List<String> list = new ArrayList<String>();
+				list.add(regid);
+				MulticastResult multiResult;
+				try {
+					multiResult = sender.send(message, list, 5);
+					if (multiResult != null) {
+						List<Result> resultList = multiResult.getResults();
+						for (Result result : resultList) {
+							System.out.println(result.getMessageId());
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
 	           // send push message
-	           PrintWriter writer = new PrintWriter("D:/pushdata.txt", "UTF-8");
-	           writer.println(regid);
-	           writer.println(AMessage);
-	           writer.close();
-	           
-	           Runtime rt = Runtime.getRuntime();
-	           Process p;
-	           String[] cmdAry = {"C:/Program Files/nodejs/node", "D:/android.js"};
-	           try
-	           {
-	        	   p = rt.exec(cmdAry);
-	        	   p.waitFor();
-	           }
-	           catch (Exception e)
-	           {
-	        	   e.printStackTrace();
-	        	   System.out.println("exception raised.... ");
-	           }
+//	           PrintWriter writer = new PrintWriter("D:/pushdata.txt", "UTF-8");
+//	           writer.println(regid);
+//	           writer.println(AMessage);
+//	           writer.close();
+//	           try 
+//	           {
+//        	      BufferedReader in = new BufferedReader(new FileReader("D:/pushdata.txt"));
+//        	      String s;
+//
+//        	      regid = in.readLine();
+//        	      AMessage = in.readLine();
+//        	    		  
+//        	      //while ((s = in.readLine()) != null)
+//        	      //{}
+//        	      
+//        	      in.close();
+//	           }
+//	           catch (IOException e)
+//	           {
+//	    	        System.err.println(e); // 에러가 있다면 메시지 출력
+//	    	        System.exit(1);
+//	           }
+//	           System.out.println(regid);
+//	           System.out.println(AMessage);
+//	           
+//	           Runtime rt = Runtime.getRuntime();
+//	           Process p;
+//	           String[] cmdAry = {"D:/nodejsInstall/node", "./android.js"};
+//	           try
+//	           {
+//	        	   System.out.println("XXXAAA");
+//	        	   p = rt.exec(cmdAry);
+//	        	   p.waitFor();
+//	           }
+//	           catch (Exception e)
+//	           {
+//	        	   e.printStackTrace();
+//	        	   System.out.println("exception raised.... ");
+//	           }
 	        }
 	        
 	        // Clean-up environment
