@@ -193,8 +193,7 @@ public class psyServlet extends HttpServlet {
 	            // send push message
 	            Sender sender = new Sender("AIzaSyCLyKTKpOmGheXwUT9ba-JdGU74GqzVpG4"); 
 	
-				Message message = new Message.Builder().addData(AMessage, "Popup & GCM Test")
-						.build();
+				Message message = new Message.Builder().addData("message", AMessage).build();
 				List<String> list = new ArrayList<String>();
 				list.add(regid);
 				MulticastResult multiResult;
